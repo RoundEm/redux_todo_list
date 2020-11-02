@@ -1,25 +1,60 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import { connect } from "react-redux";
+import * as actions from "./actions";
+import "./index.css";
 
-function App() {
+function App(props) {
+  console.log('props: ', props)
+  const [todoInput, setTodoInput] = useState("");
+
+  function handleTodoInput(e) {
+    setTodoInput(e.target.value);
+  }
+
+  function handleAddTodo() {
+    props.dispatch(actions.addTodo(todoInput));
+    setTodoInput("");
+  }
+
+  function handleDelete(e) {
+    props.dispatch(actions.deleteTodo(e.target.id));
+  }
+
+  function handleMarkCompleted(e) {
+    props.dispatch(actions.markTodoCompleted(e.target.id));
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>TODOs</h1>
+      <input type="text" value={todoInput} onChange={handleTodoInput} />
+      <button onClick={handleAddTodo}>Add</button>
+
+      {props.todos.map((todo) => {
+        return (
+          <li key={todo.id} className={todo.completed ? "strikethrough" : ""}>
+            {todo.description}
+
+            <button id={todo.id} onClick={handleDelete}>
+              Delete
+            </button>
+
+            <button
+              id={todo.id}
+              onClick={handleMarkCompleted}
+              disabled={todo.completed}
+            >
+              Mark Completed
+            </button>
+          </li>
+        );
+      })}
     </div>
   );
 }
 
-export default App;
+function mapStateToProps(state) {
+  return { todos: state };
+}
+
+export default connect(mapStateToProps)(App);
